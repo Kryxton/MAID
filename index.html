@@ -52,9 +52,8 @@
             padding: 10px;
             border-radius: 5px;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
             align-items: center;
-            flex-wrap: wrap;
             box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
         }
         .contract {
@@ -67,11 +66,70 @@
             color: #d63384;
             font-weight: bold;
         }
-
-.chart-container iframe {
-    width: 100%; /* Make the chart take full width */
-    height: 600px; /* Increase chart height */
-}   </style>
+        .copy-btn {
+            background-color: #d63384;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            margin-top: 10px;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .copy-btn:hover {
+            background-color: #b52b6f;
+        }
+        .chart-container iframe {
+            width: 100%;
+            height: 600px;
+        }
+        .meme-container {
+            margin-top: 40px;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+        }
+        .meme-container h2 {
+            color: #d63384;
+            margin-bottom: 20px;
+        }
+        .meme-images, .meme-videos {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            justify-items: center;
+        }
+        .meme-images img, .meme-videos video {
+            width: 100%;
+            max-width: 300px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+        }
+        @media (max-width: 600px) {
+            .container {
+                padding: 10px;
+            }
+            .links a {
+                width: 90%;
+                font-size: 14px;
+            }
+            .contract-container {
+                padding: 8px;
+            }
+            .meme-container {
+                padding: 15px;
+            }
+            .meme-images, .meme-videos {
+                grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            }
+            .meme-images img, .meme-videos video {
+                max-width: 100%;
+                width: auto;
+            }
+        }
+    </style>
 </head>
 <body>
 
@@ -88,19 +146,56 @@
         </div>
 
         <div class="contract-container">
-            <p class="contract">CA: 6AfXLCotnHHmKi6VC6zGonfMg7R6RhRmHjHpN6FPpump</p>
+            <p class="contract" id="contract-address">CA: 6AfXLCotnHHmKi6VC6zGonfMg7R6RhRmHjHpN6FPpump</p>
+            <button class="copy-btn" onclick="copyContract()">Copy CA</button>
         </div>
     </div>
 
-<div class="chart-container">
-     <iframe 
-	width="100%" 
-	height="600" 
-	src="https://birdeye.so/tv-widget/6AfXLCotnHHmKi6VC6zGonfMg7R6RhRmHjHpN6FPpump?chain=solana&viewMode=pair&chartInterval=1&chartType=Candle&chartTimezone=Europe%2FBerlin&chartLeftToolbar=show&theme=dark&cssCustomProperties=--tv-color-pane-background%3A%232a2e39&cssCustomProperties=--tv-color-platform-background%3A%23d32b85&chartOverrides=mainSeriesProperties.candleStyle.upColor%3A%23ef4dc2&chartOverrides=mainSeriesProperties.candleStyle.borderUpColor%3A%23ef4dc2&chartOverrides=mainSeriesProperties.candleStyle.wickUpColor%3A%23ef4dc2&chartOverrides=mainSeriesProperties.candleStyle.wickDownColor%3A%2300c572&chartOverrides=mainSeriesProperties.candleStyle.borderDownColor%3A%2300c572&chartOverrides=mainSeriesProperties.candleStyle.downColor%3A%2300c572" 
-	frameborder="0" 
-	allowfullscreen>
-</iframe>
+    <div class="chart-container">
+        <iframe 
+            src="https://birdeye.so/tv-widget/6AfXLCotnHHmKi6VC6zGonfMg7R6RhRmHjHpN6FPpump?chain=solana&viewMode=pair&chartInterval=1&chartType=Candle&chartTimezone=Europe%2FBerlin&chartLeftToolbar=show&theme=dark&cssCustomProperties=--tv-color-pane-background%3A%232a2e39&cssCustomProperties=--tv-color-platform-background%3A%23d32b85&chartOverrides=mainSeriesProperties.candleStyle.upColor%3A%23ef4dc2&chartOverrides=mainSeriesProperties.candleStyle.borderUpColor%3A%23ef4dc2&chartOverrides=mainSeriesProperties.candleStyle.wickUpColor%3A%23ef4dc2&chartOverrides=mainSeriesProperties.candleStyle.wickDownColor%3A%2300c572&chartOverrides=mainSeriesProperties.candleStyle.borderDownColor%3A%2300c572&chartOverrides=mainSeriesProperties.candleStyle.downColor%3A%2300c572" 
+            frameborder="0" 
+            allowfullscreen>
+        </iframe>
     </div>
+
+    <div class="meme-container">
+        <h2>Maid Marian Memes</h2>
+
+        <div class="meme-images">
+            <img src="meme1.jpeg" alt="Meme 1">
+        </div>
+
+        <div class="meme-videos">
+            <video controls>
+                <source src="m1.mp4" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+            <video controls>
+                <source src="m2.mp4" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+            <video controls>
+                <source src="m3.mp4" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+            <video controls>
+                <source src="m4.mp4" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+        </div>
+    </div>
+
+    <script>
+        function copyContract() {
+            const contractText = document.getElementById("contract-address").textContent.replace("CA: ", "");
+            navigator.clipboard.writeText(contractText).then(() => {
+                alert("Contract Address Copied!");
+            }).catch(err => {
+                console.error("Failed to copy: ", err);
+            });
+        }
+    </script>
 
 </body>
 </html>
