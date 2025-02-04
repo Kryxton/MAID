@@ -109,7 +109,7 @@
         }
         .meme-videos {
             display: flex;
-            flex-direction: column; /* Stack videos vertically */
+            flex-direction: column;
             align-items: center;
             gap: 20px;
         }
@@ -118,7 +118,9 @@
             max-width: 400px;
             border-radius: 10px;
             box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
-            background: none; /* Removes the black background */
+            background: none;
+            opacity: 0; /* Initially hide videos */
+            transition: opacity 0.5s ease-in-out;
         }
         @media (max-width: 600px) {
             .container {
@@ -161,11 +163,7 @@
     </div>
 
     <div class="chart-container">
-        <iframe 
-            src="https://birdeye.so/tv-widget/6AfXLCotnHHmKi6VC6zGonfMg7R6RhRmHjHpN6FPpump?chain=solana&viewMode=pair&chartInterval=1&chartType=Candle&chartTimezone=Europe%2FBerlin&chartLeftToolbar=show&theme=dark&cssCustomProperties=--tv-color-pane-background%3A%232a2e39&cssCustomProperties=--tv-color-platform-background%3A%23d32b85&chartOverrides=mainSeriesProperties.candleStyle.upColor%3A%23ef4dc2&chartOverrides=mainSeriesProperties.candleStyle.borderUpColor%3A%23ef4dc2&chartOverrides=mainSeriesProperties.candleStyle.wickUpColor%3A%23ef4dc2&chartOverrides=mainSeriesProperties.candleStyle.wickDownColor%3A%2300c572&chartOverrides=mainSeriesProperties.candleStyle.borderDownColor%3A%2300c572&chartOverrides=mainSeriesProperties.candleStyle.downColor%3A%2300c572" 
-            frameborder="0" 
-            allowfullscreen>
-        </iframe>
+        <iframe src="https://birdeye.so/tv-widget/6AfXLCotnHHmKi6VC6zGonfMg7R6RhRmHjHpN6FPpump?chain=solana" frameborder="0" allowfullscreen></iframe>
     </div>
 
     <div class="meme-container">
@@ -173,21 +171,23 @@
 
         <div class="meme-images">
             <img src="meme1.jpeg" alt="Meme 1">
+            <img src="meme2.jpeg" alt="Meme 2">
         </div>
 
         <div class="meme-videos">
-            <video controls preload="metadata" poster="thumbnail1.jpg">
+            <video muted loop playsinline>
                 <source src="m1.mp4" type="video/mp4">
             </video>
-            <video controls preload="metadata" poster="thumbnail2.jpg">
+            <video muted loop playsinline>
                 <source src="m2.mp4" type="video/mp4">
             </video>
-            <video controls preload="metadata" poster="thumbnail3.jpg">
+            <video muted loop playsinline>
                 <source src="m3.mp4" type="video/mp4">
             </video>
- <video controls preload="metadata" poster="thumbnail3.jpg">
+ <video muted loop playsinline>
                 <source src="m4.mp4" type="video/mp4">
-            </video>      
+            </video>
+        </div>
     </div>
 
     <script>
@@ -199,6 +199,21 @@
                 console.error("Failed to copy: ", err);
             });
         }
+
+        // Auto-play videos when in view
+        const observer = new IntersectionObserver(entries => {
+            entries.forEach(entry => {
+                const video = entry.target;
+                if (entry.isIntersecting) {
+                    video.play();
+                    video.style.opacity = 1;
+                } else {
+                    video.pause();
+                }
+            });
+        }, { threshold: 0.5 });
+
+        document.querySelectorAll(".meme-videos video").forEach(video => observer.observe(video));
     </script>
 
 </body>
