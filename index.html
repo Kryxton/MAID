@@ -95,17 +95,30 @@
             color: #d63384;
             margin-bottom: 20px;
         }
-        .meme-images, .meme-videos {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        .meme-images {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
             gap: 15px;
-            justify-items: center;
         }
-        .meme-images img, .meme-videos video {
+        .meme-images img {
             width: 100%;
             max-width: 300px;
             border-radius: 10px;
             box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+        }
+        .meme-videos {
+            display: flex;
+            flex-direction: column; /* Stack videos vertically */
+            align-items: center;
+            gap: 20px;
+        }
+        .meme-videos video {
+            width: 100%;
+            max-width: 400px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+            background: none; /* Removes the black background */
         }
         @media (max-width: 600px) {
             .container {
@@ -121,12 +134,8 @@
             .meme-container {
                 padding: 15px;
             }
-            .meme-images, .meme-videos {
-                grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-            }
             .meme-images img, .meme-videos video {
                 max-width: 100%;
-                width: auto;
             }
         }
     </style>
@@ -164,26 +173,22 @@
 
         <div class="meme-images">
             <img src="meme1.jpeg" alt="Meme 1">
+            <img src="meme2.jpeg" alt="Meme 2">
         </div>
 
         <div class="meme-videos">
-            <video controls>
+            <video controls preload="metadata" poster="thumbnail1.jpg">
                 <source src="m1.mp4" type="video/mp4">
-                Your browser does not support the video tag.
             </video>
-            <video controls>
+            <video controls preload="metadata" poster="thumbnail2.jpg">
                 <source src="m2.mp4" type="video/mp4">
-                Your browser does not support the video tag.
             </video>
-            <video controls>
+            <video controls preload="metadata" poster="thumbnail3.jpg">
                 <source src="m3.mp4" type="video/mp4">
-                Your browser does not support the video tag.
             </video>
-            <video controls>
+ <video controls preload="metadata" poster="thumbnail3.jpg">
                 <source src="m4.mp4" type="video/mp4">
-                Your browser does not support the video tag.
-            </video>
-        </div>
+            </video>      
     </div>
 
     <script>
