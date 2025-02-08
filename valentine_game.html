@@ -11,6 +11,7 @@
       background-color: #ffecf2;
       font-family: Arial, sans-serif;
     }
+    /* The canvas element will fill its container */
     canvas {
       display: block;
       margin: auto;
@@ -83,6 +84,12 @@
       margin-top: 10px;
       color: #d63384;
     }
+    /* Responsive adjustments for small devices */
+    @media (max-width: 400px) {
+      h1 { font-size: 24px; }
+      p { font-size: 16px; }
+      .button, #startGameBtn { padding: 10px 16px; font-size: 14px; }
+    }
   </style>
 </head>
 <body>
@@ -132,8 +139,16 @@
     const playerHighScoreDisplay = document.getElementById("playerHighScoreDisplay");
     const playerRankElem = document.getElementById("playerRank");
 
-    canvas.width = 400;
-    canvas.height = 500;
+    // Responsive canvas resizing function
+    function resizeCanvas() {
+      // Use up to 95% of the window width, but no more than 400px
+      const newWidth = Math.min(400, window.innerWidth * 0.95);
+      canvas.width = newWidth;
+      // Maintain aspect ratio 400:500 (width:height)
+      canvas.height = newWidth * (500 / 400);
+    }
+    window.addEventListener("resize", resizeCanvas);
+    resizeCanvas(); // Call on load
 
     // Load images
     const basketImg = new Image();
