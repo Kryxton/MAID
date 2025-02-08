@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Catch the Hearts - Valentine's Game</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      text-align: center;
+      background-color: #ffecf2;
+      font-family: Arial, sans-serif;
+    }
+    canvas {
+      display: block;
+      margin: auto;
+      background: #ffd1dc;
+      border-bottom: 5px solid #ff4d6d;
+    }
+    h1 { color: #ff4d6d; margin-top: 20px; }
+    p { font-size: 18px; color: #333; }
+    .button,
+    #startGameBtn {
+      background-color: #d63384;
+      color: white;
+      text-decoration: none;
+      padding: 12px 20px;
+      margin: 20px auto;
+      width: fit-content;
+      border-radius: 5px;
+      font-weight: bold;
+      transition: background 0.3s;
+      cursor: pointer;
+      border: none;
+    }
+    .button:hover,
+    #startGameBtn:hover { background-color: #b52b6f; }
+    .hidden { display: none; }
+    #leaderboardContainer {
+      margin: 20px auto;
+      max-width: 400px;
+      background: #fff;
+      padding: 10px;
+      border-radius: 5px;
+      box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+    }
+    #leaderboardContainer h2 { color: #d63384; }
+    #leaderboardList {
+      list-style: decimal inside;
+      padding: 10px;
+      text-align: left;
+    }
+    /* Leaderboard item styling */
+    #leaderboardList li {
+      padding: 8px;
+      margin: 5px 0;
+      border-radius: 5px;
+      background-color: #f0f0f0;
+      font-weight: bold;
+    }
+    /* Special styling for top 3 places */
+    .first-place {
+      background-color: #ffd700; /* Gold */
+      color: #000;
+    }
+    .second-place {
+      background-color: #c0c0c0; /* Silver */
+      color: #000;
+    }
+    .third-place {
+      background-color: #cd7f32; /* Bronze */
+      color: #fff;
+    }
+    /* Highlight current player's entry */
+    .current-player {
+      background-color: #ff99cc !important;
+      border: 2px solid #d63384;
+    }
+    /* Display player's rank */
+    #playerRank {
+      font-size: 20px;
+      font-weight: bold;
+      margin-top: 10px;
+      color: #d63384;
+    }
+  </style>
+</head>
+<body>
+  <!-- Back to homepage button -->
+  <a href="index.html" class="button">← Go Back to Homepage</a>
+  <h1>Catch the Hearts!</h1>
+
+  <!-- Name Input Section (shown only if no name is saved) -->
+  <div id="nameInputContainer" class="hidden">
+    <p>Please enter your name to start:</p>
+    <input type="text" id="playerNameInput" placeholder="Your name" />
+    <button id="startGameBtn">Start Game</button>
+  </div>
+
+  <!-- Welcome message (after name is set) -->
+  <p id="welcomeMessage" class="hidden">
+    <strong>Player:</strong> <span id="playerNameDisplay"></span>
+  </p>
+  <p>
+    <strong>Your High Score:</strong>
+    <span id="playerHighScoreDisplay">0</span>
+  </p>
+
+  <!-- Game canvas and Play Again button (initially hidden) -->
+  <canvas id="gameCanvas" class="hidden"></canvas>
+  <button id="playAgainBtn" class="button hidden">Play Again</button>
+
+  <!-- Leaderboard container -->
+  <div id="leaderboardContainer" class="hidden">
+    <h2>Leaderboard</h2>
+    <ol id="leaderboardList"></ol>
+    <p id="playerRank"></p>
+  </div>
+
+  <script>
+    // Get DOM elements
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+    const nameInputContainer = document.getElementById("nameInputContainer");
+    const playerNameInput = document.getElementById("playerNameInput");
+    const startGameBtn = document.getElementById("startGameBtn");
+    const playerNameDisplay = document.getElementById("playerNameDisplay");
+    const welcomeMessage = document.getElementById("welcomeMessage");
+    const playAgainBtn = document.getElementById("playAgainBtn");
+    const leaderboardContainer = document.getElementById("leaderboardContainer");
+    const leaderboardList = document.getElementById("leaderboardList");
+    const playerHighScoreDisplay = document.getElementById("playerHighScoreDisplay");
+    const playerRankElem = document.getElementById("playerRank");
+
+    canvas.width = 400;
+    canvas.height = 500;
+
+    // Load images
+    const basketImg = new Image();
+    basketImg.src = "basket.png"; // Replace with your basket image
+    const heartImg = new Image();
+    heartImg.src = "heart.png"; // Replace with your heart image
+
+    // Game variables
+    let basketX;
+    let basketWidth, basketHeight; // Will be set when basketImg loads
+    let hearts, score, gameOver;
+    const basketSpeed = 10;
+    let highScore = parseInt(localStorage.getItem("playerHighScore")) || 0;
+    playerHighScoreDisplay.textContent = highScore;
+
+    // Leaderboard: an array of objects { name: string, score: number }
+    let leaderboard = JSON.parse(localStorage.getItem("leaderboard")) || [];
+
+    // --- Leaderboard functions ---
+    function updateLeaderboardDisplay() {
+      // Sort leaderboard descending by score and trim to top 10
+      leaderboard.sort((a, b) => b.score - a.score);
+      leaderboard = leaderboard.slice(0, 10);
+      localStorage.setItem("leaderboard", JSON.stringify(leaderboard));
+      leaderboardList.innerHTML = "";
+      let playerRank = -1;
+      const currentPlayerName = localStorage.getItem("playerName");
+      leaderboard.forEach((entry, index) => {
+        const li = document.createElement("li");
+        li.textContent = entry.name + ": " + entry.score;
+        // Apply special styling for top 3 positions
+        if (index === 0) {
+          li.classList.add("first-place");
+        } else if (index === 1) {
+          li.classList.add("second-place");
+        } else if (index === 2) {
+          li.classList.add("third-place");
+        }
+        // Mark current player's entry
+        if (entry.name === currentPlayerName) {
+          li.classList.add("current-player");
+          playerRank = index + 1;
+        }
+        leaderboardList.appendChild(li);
+      });
+      if (playerRank !== -1) {
+        playerRankElem.textContent = "Your Rank: " + playerRank;
+      } else {
+        playerRankElem.textContent = "";
+      }
+    }
+
+    function updateLeaderboard(playerName, newScore) {
+      const existing = leaderboard.find(entry => entry.name === playerName);
+      if (existing) {
+        if (newScore > existing.score) {
+          existing.score = newScore;
+        }
+      } else {
+        leaderboard.push({ name: playerName, score: newScore });
+      }
+      updateLeaderboardDisplay();
+    }
+    // --------------------------------
+
+    // Game reset function
+    function resetGame() {
+      basketX = canvas.width / 2 - basketWidth / 2;
+      hearts = [];
+      score = 0;
+      gameOver = false;
+      playAgainBtn.classList.add("hidden");
+      update();
+    }
+
+    // Create a new heart object
+    function createHeart() {
+      return {
+        x: Math.random() * (canvas.width - 30),
+        y: 0,
+        size: 30,
+        speed: 2 + Math.random() * 3
+      };
+    }
+
+    // Add hearts over time
+    setInterval(() => {
+      if (!gameOver) hearts.push(createHeart());
+    }, 1000);
+
+    // Keyboard controls
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowLeft" && basketX > 0) basketX -= basketSpeed;
+      if (e.key === "ArrowRight" && basketX < canvas.width - basketWidth)
+        basketX += basketSpeed;
+    });
+
+    // Touch controls for mobile
+    canvas.addEventListener("touchstart", (e) => {
+      const touchX =
+        e.touches[0].clientX - canvas.getBoundingClientRect().left;
+      basketX = touchX - basketWidth / 2;
+    });
+
+    // Main game update loop
+    function update() {
+      if (gameOver) return;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      // Draw basket using scaled dimensions
+      ctx.drawImage(
+        basketImg,
+        basketX,
+        canvas.height - basketHeight - 10,
+        basketWidth,
+        basketHeight
+      );
+      // Draw hearts and update positions
+      for (let i = 0; i < hearts.length; i++) {
+        const heart = hearts[i];
+        ctx.drawImage(heartImg, heart.x, heart.y, heart.size, heart.size);
+        heart.y += heart.speed;
+        // Check if heart is caught
+        if (
+          heart.y > canvas.height - basketHeight - 10 &&
+          heart.x > basketX &&
+          heart.x < basketX + basketWidth
+        ) {
+          hearts.splice(i, 1);
+          score++;
+          i--;
+        }
+        // If a heart falls past the bottom, game over
+        if (heart.y > canvas.height) {
+          gameOver = true;
+        }
+      }
+      // Display score info on canvas
+      ctx.fillStyle = "#333";
+      ctx.font = "20px Arial";
+      ctx.fillText("Score: " + score, 20, 30);
+      ctx.fillText("High Score: " + highScore, 20, 60);
+      if (gameOver) {
+        // Update player's high score if beaten
+        if (score > highScore) {
+          highScore = score;
+          localStorage.setItem("playerHighScore", highScore);
+          playerHighScoreDisplay.textContent = highScore;
+        }
+        // Update leaderboard with the player's record
+        const playerName = localStorage.getItem("playerName");
+        updateLeaderboard(playerName, highScore);
+        ctx.fillStyle = "#000";
+        ctx.font = "30px Arial";
+        ctx.fillText("Game Over!", canvas.width / 2 - 70, canvas.height / 2);
+        playAgainBtn.classList.remove("hidden");
+        leaderboardContainer.classList.remove("hidden");
+        return;
+      }
+      requestAnimationFrame(update);
+    }
+
+    // Start the game: hide the name input, show game elements, and call resetGame()
+    function startGame() {
+      nameInputContainer.classList.add("hidden");
+      canvas.classList.remove("hidden");
+      welcomeMessage.classList.remove("hidden");
+      leaderboardContainer.classList.remove("hidden");
+      playerNameDisplay.textContent = localStorage.getItem("playerName");
+      resetGame();
+    }
+
+    // Event listener for Start Game button
+    startGameBtn.addEventListener("click", () => {
+      const playerName = playerNameInput.value.trim();
+      if (playerName === "") {
+        alert("Please enter your name to start the game.");
+        return;
+      }
+      localStorage.setItem("playerName", playerName);
+      startGame();
+    });
+
+    // If a player name already exists, auto-start the game
+    if (localStorage.getItem("playerName")) {
+      startGame();
+    } else {
+      nameInputContainer.classList.remove("hidden");
+    }
+
+    // When the basket image loads, set the basket dimensions using a scale factor.
+    basketImg.onload = function () {
+      // ***** ADJUST THE BASKET SCALE FACTOR HERE *****
+      const scaleFactor = 0.22; // 0.22 means 22% of the original size. Change this value to adjust the basket size.
+      // ***********************************************
+      basketWidth = basketImg.width * scaleFactor;
+      basketHeight = basketImg.height * scaleFactor;
+    };
+
+    // Restart game when Play Again is clicked
+    playAgainBtn.addEventListener("click", resetGame);
+
+    // Initialize leaderboard display on load
+    updateLeaderboardDisplay();
+  </script>
+</body>
+</html>
